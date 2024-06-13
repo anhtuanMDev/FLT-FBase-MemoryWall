@@ -1,18 +1,41 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:memory_wall/components/button_fluid.dart';
 import 'package:memory_wall/components/text_field.dart';
+import 'package:memory_wall/helper/helper_function.dart';
 
-class Signinpage extends StatelessWidget {
+class Signinpage extends StatefulWidget {
   final void Function()? onPress;
   Signinpage({super.key, required this.onPress});
 
+  @override
+  State<Signinpage> createState() => _SigninpageState();
+}
+
+class _SigninpageState extends State<Signinpage> {
   TextEditingController emailController = TextEditingController();
+
   TextEditingController passwordController = TextEditingController();
 
-  void login() {}
+  void login() async {
+    showProgress(context);
+    try {
+      FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text, password: passwordController.text);
+      if (context.mounted) {
+        Navigator.pop(context);
+        log("Sign in");
+      }
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      displayMessageToUser(e.code, context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +112,7 @@ class Signinpage extends StatelessWidget {
                           color: Theme.of(context).colorScheme.primary),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          onPress?.call();
+                          widget.onPress?.call();
                         },
                     ),
                   ],

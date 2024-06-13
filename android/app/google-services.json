@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "461261483668",
+    "project_id": "flt-memorywall",
+    "storage_bucket": "flt-memorywall.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461261483668:android:be7987d8dd88d03c894e81",
+        "android_client_info": {
+          "package_name": "com.example.memory_wall"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALnIftSyrR7klDC2vf9wrv2m-Fw5MJEA8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
