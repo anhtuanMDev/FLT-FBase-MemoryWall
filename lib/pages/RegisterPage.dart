@@ -1,7 +1,5 @@
 // ignore_for_file: must_be_immutable
 
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +35,7 @@ class _RegisterpageState extends State<Registerpage> {
         UserCredential? user = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text);
+        await user.user?.updateDisplayName(usernameController.text);
         Navigator.pop(context);
       } on FirebaseAuthException catch (e) {
         Navigator.pop(context);
