@@ -1,11 +1,9 @@
 // ignore_for_file: file_names
 
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:memory_wall/components/drawer.dart';
+import 'package:memory_wall/components/memory_card.dart';
 import 'package:memory_wall/pages/CreateMemoryPage.dart';
 import 'package:memory_wall/services/fireservice.dart';
 
@@ -30,30 +28,30 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Creatememorypage(),
+                      builder: (context) => const Creatememorypage(),
                     ));
               },
               icon: const Icon(Icons.post_add))
         ],
       ),
-      drawer: DrawerCpn(),
+      drawer: const DrawerCpn(),
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: StreamBuilder(
         stream: Fireservice().getAllMemory(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          //show loading state
+          // Show loading state
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          //show that there is an error
+          // Show error state
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          //show component when the state has not finish or the data is empty
+          // Show message when data is empty
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return ListTile(
+            return const ListTile(
               title: Text('There isn\'t any memory yet'),
             );
           }
@@ -68,10 +66,10 @@ class HomePage extends StatelessWidget {
               Map<String, dynamic> memoirData =
                   memory.data() as Map<String, dynamic>;
               String content = memoirData["memory"];
+              int likesCount = memoirData["likesCount"] ?? 0;
 
-              return ListTile(
-                title: Text(content),
-              );
+              return MemoryCard(
+                  content: content, likesCount: likesCount, id: id);
             },
           );
         },

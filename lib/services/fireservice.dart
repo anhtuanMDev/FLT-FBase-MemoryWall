@@ -26,8 +26,12 @@ class Fireservice {
   // Create user memory
   Future<void>? createMemory(String userID, String memory) async {
     try {
-      memories.add(
-          {'userID': userID, 'memory': memory, 'timeStamp': Timestamp.now()});
+      memories.add({
+        'userID': userID,
+        'memory': memory,
+        'timeStamp': Timestamp.now(),
+        "likesCount": 0
+      });
     } catch (e) {
       log('Create memory error: ' + e.toString());
     }
@@ -81,6 +85,39 @@ class Fireservice {
       memories.doc(id).delete();
     } catch (e) {
       log('Delete comment error: ' + e.toString());
+    }
+  }
+
+  Future<bool> checkIfLike(String memoryID, String userID) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      final likeDoc =
+          await memories.doc(memoryID).collection('likes').doc(userID).get();
+      return likeDoc.exists;
+    }
+    return false;
+  }
+
+  Future<void> toggleLike(String memoryId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception("User not logged in");
+    }
+    final memoryRef = memories.doc(memoryId);
+    // Creating or Getting Document Reference with User ID
+    final likeRef = memoryRef.collection('likes').doc(user.uid);
+
+    final likeSnapshot = await likeRef.get();
+
+    if (likeSnapshot.exists) {
+      // Unlike the memory
+      await likeRef.delete();
+      await memoryRef.update({'likesCount': FieldValue.increment(-1)});
+    } else {
+      // Like the memory
+      await likeRef.set({'liked': true});
+      await memoryRef.update({'likesCount': FieldValue.increment(1)});
     }
   }
 }
