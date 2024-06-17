@@ -7,14 +7,14 @@ import 'package:memory_wall/components/drawer.dart';
 import 'package:memory_wall/helper/helper_function.dart';
 import 'package:memory_wall/services/fireservice.dart';
 
-class Creatememorypage extends StatefulWidget {
-  const Creatememorypage({super.key});
+class CreateMemoryPage extends StatefulWidget {
+  const CreateMemoryPage({super.key});
 
   @override
-  State<Creatememorypage> createState() => _CreatememorypageState();
+  State<CreateMemoryPage> createState() => _CreateMemoryPageState();
 }
 
-class _CreatememorypageState extends State<Creatememorypage> {
+class _CreateMemoryPageState extends State<CreateMemoryPage> {
   final TextEditingController control = new TextEditingController();
   @override
   Widget build(BuildContext context) {

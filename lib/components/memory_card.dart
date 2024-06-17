@@ -7,12 +7,14 @@ class MemoryCard extends StatefulWidget {
   final String content;
   final String id;
   final int likesCount;
+  final String userID; // Added userID to identify memory owner
 
   const MemoryCard({
     Key? key,
     required this.content,
     required this.likesCount,
     required this.id,
+    required this.userID,
   }) : super(key: key);
 
   @override
@@ -21,7 +23,7 @@ class MemoryCard extends StatefulWidget {
 
 class _MemoryCardState extends State<MemoryCard> {
   bool isLiked = false;
-  final user = FirebaseAuth.instance.currentUser;
+  final User? user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -55,11 +57,13 @@ class _MemoryCardState extends State<MemoryCard> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isOwner = (user != null && widget.userID == user!.uid);
+
     return Card(
       elevation: 5,
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(15.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -70,36 +74,58 @@ class _MemoryCardState extends State<MemoryCard> {
             const SizedBox(height: 10),
             Divider(thickness: 1, color: Colors.grey),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  icon: Icon(
-                    isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
-                    color: isLiked ? Colors.blue : Colors.grey,
-                  ),
-                  onPressed: toggleLike,
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                        color: isLiked ? Colors.blue : Colors.grey,
+                      ),
+                      onPressed: toggleLike,
+                    ),
+                    Text(
+                      '${widget.likesCount} likes',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
                 ),
-                Text(
-                  '${widget.likesCount} likes',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                Expanded(
-                  child: Container(),
-                ),
-                IconButton(
-                  icon: Icon(Icons.comment),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return Memorydetail(
-                          memoryID: widget.id,
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MemoryDetail(
+                              memoryID: widget.id,
+                              content: widget.content,
+                            ),
+                          ),
                         );
                       },
-                    ));
-                  },
-                ),
-                Text(
-                  'Comment',
-                  style: const TextStyle(fontSize: 16),
+                      icon: Icon(Icons.comment),
+                      label: Text(
+                        'Comment',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    if (isOwner)
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
+                        onPressed: () async {
+                          try {
+                            await Fireservice().deleteMemory(widget.id);
+                          } catch (e) {
+                            print('Error deleting memory: $e');
+                          }
+                        },
+                      ),
+                  ],
                 ),
               ],
             ),

@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:memory_wall/pages/HomePage.dart';
+import 'package:memory_wall/pages/ProfilePage.dart';
 
 class DrawerCpn extends StatelessWidget {
   const DrawerCpn({super.key});
@@ -24,17 +27,26 @@ class DrawerCpn extends StatelessWidget {
             ),
             padding: EdgeInsets.zero,
           ),
-          const ListTile(
-            title: Text("Home page"),
-            leading: Icon(Icons.home),
-          ),
-          const ListTile(
-            title: Text("Profile page"),
-            leading: Icon(Icons.person),
-          ),
-          const ListTile(
+          ListTile(
+              title: Text("Home page"),
+              leading: Icon(Icons.home),
+              onTap: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomePage()))
+                  }),
+          ListTile(
+              title: Text("Profile page"),
+              leading: Icon(Icons.person),
+              onTap: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => ProfilePage()))
+                  }),
+          ListTile(
             title: Text("Log out"),
             leading: Icon(Icons.logout),
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+            },
           ),
         ],
       ),

@@ -15,12 +15,10 @@ class Fireservice {
     return memories.orderBy('timeStamp', descending: true).snapshots();
   }
 
-  // Get all comment
-  Stream<QuerySnapshot> getAllComments(String memoryId) {
-    return comments
-        .where('memoryID', isEqualTo: memoryId)
-        .orderBy('timeStamp', descending: true)
-        .snapshots();
+  // Get all comments
+  // Get all comments without filtering
+  Stream<QuerySnapshot> getAllComments() {
+    return comments.snapshots();
   }
 
   // Create user memory
@@ -38,10 +36,10 @@ class Fireservice {
   }
 
   // Create user comment
-  Future<void>? createComment(
+  Future<void> createComment(
       String userID, String memoryID, String content) async {
     try {
-      comments.add({
+      await comments.add({
         'userID': userID,
         'memoryID': memoryID,
         'content': content,
@@ -73,7 +71,29 @@ class Fireservice {
   //Delete user memory
   Future<void>? deleteMemory(String id) async {
     try {
-      memories.doc(id).delete();
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception("User not authenticated");
+      }
+
+      final DocumentSnapshot memorySnapshot = await memories.doc(id).get();
+      if (!memorySnapshot.exists) {
+        throw Exception("Memory does not exist");
+      }
+
+      final Map<String, dynamic>? memoryData =
+          memorySnapshot.data() as Map<String, dynamic>?;
+
+      if (memoryData == null) {
+        throw Exception("Memory data is null");
+      }
+
+      final String ownerId = memoryData['userID'];
+      if (user.uid != ownerId) {
+        throw Exception("User is not authorized to delete this memory");
+      }
+
+      await memories.doc(id).delete();
     } catch (e) {
       log('Delete memory error: ' + e.toString());
     }
@@ -82,7 +102,7 @@ class Fireservice {
   //Delete user comment
   Future<void>? deleteComment(String id) async {
     try {
-      memories.doc(id).delete();
+      comments.doc(id).delete();
     } catch (e) {
       log('Delete comment error: ' + e.toString());
     }
